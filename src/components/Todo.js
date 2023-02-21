@@ -1,69 +1,126 @@
-import React from "react";
-import { useState } from "react";
+import { React ,useState } from "react";
 
-const Todo = () => {
-  //to set the todo in the list
+
+export default function Todo() {
+  const [list, setList] = useState([{ id:'',text:'Default data'}]);
   const [todo, setTodo] = useState("");
-
-  //to check if todo list editing
   const [isEditing, setIsEditing] = useState(false);
+  const [currentTodo, setCurrentTodo] = useState({});
 
-  //  const [todos,setTodos] = useState('');
+  
 
-  const onAddHandler = (e) => {
-    e.preventdefault();
-    setTodo(list)
-  };
-  const list = () =>{
-    ...todo ,
-    
-  }
-
-  const onDeleteHandler = (e) => {};
-
-  const onChangeEditHandler = (e) => {
-    // e.preventdefault()
-    setIsEditing(true);
+  //on clicking add this function
+  const handleInputChange = (e) => {
+    setTodo(e.target.value);
   };
 
-  const onSaveHandler = (e) => {
-    // e.preventdefault()
+
+//checks wheather is empty if not set to todo 
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+
+    if (todo !== "") {
+      setList([
+        ...list,
+        {
+          id: list.length + 1,
+          text: todo.trim(),
+        },
+      ]);
+    }
+
+    setTodo("");
+  };
+
+  // Delete functionality
+  const handleDeleteClick = (id) => {
+    const removeItem = list.filter((todo) => {
+      return todo.id !== id;
+    });
+    setList(removeItem);
+  };
+
+  // function to edit a todo item
+  const handleUpdateTodo = (id, updatedTodo) => {
+    const updatedItem = list.map((todo) => {
+      return todo.id === id ? updatedTodo : todo;
+    });
     setIsEditing(false);
+    setList(updatedItem);
+  };
+
+  const handleEditFormSubmit = (e) => {
+    e.preventDefault();
+    handleUpdateTodo(currentTodo.id, currentTodo);
+    
+  };
+
+  const handleEditInputChange = (e) => {
+    setCurrentTodo({ ...currentTodo, text: e.target.value });
+    console.log(currentTodo);
+  };
+
+  // function to handle when the "Edit" button is clicked
+  const handleEditClick = (todo) => {
+    // set editing to true
+    setIsEditing(true);
+    // set the currentTodo to the todo item that was clicked
+    setCurrentTodo({ ...todo });
   };
 
   return (
-    <div style={{ textAlign: "center" }}>
-      <h1 style={{ textAlign: "center" }}>Todo </h1>
+    <div style={{textAlign:'center'}}>
 
-      {!isEditing ? (
-        <form onSubmit={onAddHandler}>
-          <label>Add Todo </label>
-          <br />
-          <br />
-          <input type="text" placeholder="Add text here"></input>
-          <button onClick={onAddHandler} value={todo} type="submit">
-            Add
-          </button>
-
-          <li> Default </li>
-          <button onClick={onChangeEditHandler}> Edit</button>
-          <button onClick={onDeleteHandler}>Delete</button>
+    
+   
+      {isEditing ? (
+        <form onSubmit={handleEditFormSubmit}>
+          <h2>Edit Todo</h2>
+          <label >Edit todo: </label><br />
+          <input
+            name="editTodo"
+            type="text"
+            placeholder="Edit todo"
+            value={currentTodo.text}
+            onChange={handleEditInputChange}
+          />
+          <button type="submit" onClick={()=>{
+            
+          }}>save</button>
+          <button onClick={() => setIsEditing(false)}>cancel</button>
         </form>
       ) : (
-        <form>
-          <label>Edit Todo</label>
-          <br />
-          <br />
-          <input type="text" placeholder="Add text here"></input>
-
-          <button onClick={onSaveHandler} value={isEditing}>
-            save
-          </button>
-          <button>cancel</button>
+        <form onSubmit={handleFormSubmit}>
+          <h2>Add Todo</h2>
+          <label>Add todo: </label><br />
+          <input
+            name="todo"
+            type="text"
+            placeholder="Create a new todo"
+            value={todo}
+            onChange={handleInputChange}
+          />
+          <button type="submit">Add</button>
         </form>
       )}
+
+      <ul className="todo-list">
+        {list.map((todo, index) => (
+          <div key={todo.id}>
+            <p>{todo.text}</p>
+          
+            <button onClick={() => handleEditClick(todo)}>Edit</button>
+            <button onClick={() => handleDeleteClick(todo.id)}>Delete</button>
+
+          </div>
+          
+        ))}
+
+
+       
+       
+      </ul>
+      {/* <button onClick={()=> setList([{id:'', text:''}])}>Delete All </button> */}
     </div>
   );
-};
-
-export default Todo;
+}
